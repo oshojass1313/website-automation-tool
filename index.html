@@ -43,10 +43,10 @@
     }
 
     button {
-      display: block;
-      width: 100%;
-      padding: 10px;
-      margin-top: 20px;
+      display: inline-block;
+      padding: 10px 20px;
+      margin-top: 10px;
+      margin-right: 10px;
       background-color: #007bff;
       color: #fff;
       border: none;
@@ -72,63 +72,87 @@
     <form id="websiteForm">
       <label for="links">Add Website Links (One per line):</label>
       <textarea id="links" placeholder="https://example.com"></textarea>
-      <button type="submit">Start Automation</button>
+      <button type="submit">Open Websites</button>
     </form>
+
+    <div>
+      <button id="startClick">Start Auto-Click</button>
+      <button id="startScroll">Start Auto-Scroll</button>
+      <button id="stopAutomation">Stop Automation</button>
+    </div>
+
     <div id="status"></div>
   </div>
 
   <script>
-    // JavaScript Functionality
+    // Variables to manage automation
+    let links = [];
+    let currentWindow = null;
+    let scrollInterval = null;
+
+    // Open websites in new tabs
     document.getElementById('websiteForm').addEventListener('submit', function (e) {
       e.preventDefault();
 
-      const links = document.getElementById('links').value.split('\n').filter(link => link.trim() !== '');
+      links = document.getElementById('links').value.split('\n').filter(link => link.trim() !== '');
       const statusDiv = document.getElementById('status');
-      statusDiv.innerHTML = 'Processing...';
+      statusDiv.innerHTML = 'Opening websites...';
 
       if (links.length === 0) {
         statusDiv.innerHTML = 'No links provided!';
         return;
       }
 
-      // Open links in new tabs
       links.forEach((link, index) => {
         setTimeout(() => {
-          window.open(link, '_blank');
-          automateWebsite(link);
+          currentWindow = window.open(link, '_blank');
         }, index * 2000); // 2-second delay between each link
       });
 
-      statusDiv.innerHTML = 'Automation started!';
+      statusDiv.innerHTML = 'Websites opened successfully!';
     });
 
-    function automateWebsite(url) {
-      const newWindow = window.open(url, '_blank');
+    // Start Auto-Click
+    document.getElementById('startClick').addEventListener('click', function () {
+      if (!currentWindow || currentWindow.closed) {
+        alert('No active website to perform auto-click!');
+        return;
+      }
 
-      setTimeout(() => {
-        if (newWindow && !newWindow.closed) {
-          // Auto-click on a button (example: button with ID 'submit')
-          try {
-            newWindow.document.querySelector('#submit')?.click();
-            console.log('Clicked on button');
-          } catch (error) {
-            console.log('Button not found');
-          }
+      try {
+        currentWindow.document.querySelector('#submit')?.click();
+        alert('Auto-click performed on the active website!');
+      } catch (error) {
+        alert('Button not found or unable to perform auto-click.');
+      }
+    });
 
-          // Auto-scroll down the page
-          let scrollPosition = 0;
-          const scrollInterval = setInterval(() => {
-            scrollPosition += 100;
-            newWindow.scrollTo(0, scrollPosition);
+    // Start Auto-Scroll
+    document.getElementById('startScroll').addEventListener('click', function () {
+      if (!currentWindow || currentWindow.closed) {
+        alert('No active website to perform auto-scroll!');
+        return;
+      }
 
-            if (scrollPosition >= newWindow.document.body.scrollHeight) {
-              clearInterval(scrollInterval);
-              console.log('Scrolling completed');
-            }
-          }, 100);
+      let scrollPosition = 0;
+      scrollInterval = setInterval(() => {
+        scrollPosition += 100;
+        currentWindow.scrollTo(0, scrollPosition);
+
+        if (scrollPosition >= currentWindow.document.body.scrollHeight) {
+          clearInterval(scrollInterval);
+          alert('Auto-scroll completed!');
         }
-      }, 3000); // Wait 3 seconds before performing actions
-    }
+      }, 100);
+    });
+
+    // Stop Automation
+    document.getElementById('stopAutomation').addEventListener('click', function () {
+      if (scrollInterval) {
+        clearInterval(scrollInterval);
+        alert('Automation stopped!');
+      }
+    });
   </script>
 </body>
 </html>
