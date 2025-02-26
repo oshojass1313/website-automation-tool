@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Website Automation Tool</title>
+  <style>
+    /* CSS Styling */
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+
+    textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 14px;
+      height: 150px;
+    }
+
+    button {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      margin-top: 20px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    #status {
+      margin-top: 20px;
+      font-size: 14px;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Website Automation Tool</h1>
+    <form id="websiteForm">
+      <label for="links">Add Website Links (One per line):</label>
+      <textarea id="links" placeholder="https://example.com"></textarea>
+      <button type="submit">Start Automation</button>
+    </form>
+    <div id="status"></div>
+  </div>
+
+  <script>
+    // JavaScript Functionality
+    document.getElementById('websiteForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      const links = document.getElementById('links').value.split('\n').filter(link => link.trim() !== '');
+      const statusDiv = document.getElementById('status');
+      statusDiv.innerHTML = 'Processing...';
+
+      if (links.length === 0) {
+        statusDiv.innerHTML = 'No links provided!';
+        return;
+      }
+
+      // Open links in new tabs
+      links.forEach((link, index) => {
+        setTimeout(() => {
+          window.open(link, '_blank');
+          automateWebsite(link);
+        }, index * 2000); // 2-second delay between each link
+      });
+
+      statusDiv.innerHTML = 'Automation started!';
+    });
+
+    function automateWebsite(url) {
+      const newWindow = window.open(url, '_blank');
+
+      setTimeout(() => {
+        if (newWindow && !newWindow.closed) {
+          // Auto-click on a button (example: button with ID 'submit')
+          try {
+            newWindow.document.querySelector('#submit')?.click();
+            console.log('Clicked on button');
+          } catch (error) {
+            console.log('Button not found');
+          }
+
+          // Auto-scroll down the page
+          let scrollPosition = 0;
+          const scrollInterval = setInterval(() => {
+            scrollPosition += 100;
+            newWindow.scrollTo(0, scrollPosition);
+
+            if (scrollPosition >= newWindow.document.body.scrollHeight) {
+              clearInterval(scrollInterval);
+              console.log('Scrolling completed');
+            }
+          }, 100);
+        }
+      }, 3000); // Wait 3 seconds before performing actions
+    }
+  </script>
+</body>
+</html>
