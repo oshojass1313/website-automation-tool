@@ -76,9 +76,8 @@
     </form>
 
     <div>
-      <button id="startClick">Start Auto-Click</button>
       <button id="startScroll">Start Auto-Scroll</button>
-      <button id="stopAutomation">Stop Automation</button>
+      <button id="stopScroll">Stop Auto-Scroll</button>
     </div>
 
     <div id="status"></div>
@@ -103,28 +102,9 @@
         return;
       }
 
-      links.forEach((link, index) => {
-        setTimeout(() => {
-          currentWindow = window.open(link, '_blank');
-        }, index * 2000); // 2-second delay between each link
-      });
-
-      statusDiv.innerHTML = 'Websites opened successfully!';
-    });
-
-    // Start Auto-Click
-    document.getElementById('startClick').addEventListener('click', function () {
-      if (!currentWindow || currentWindow.closed) {
-        alert('No active website to perform auto-click!');
-        return;
-      }
-
-      try {
-        currentWindow.document.querySelector('#submit')?.click();
-        alert('Auto-click performed on the active website!');
-      } catch (error) {
-        alert('Button not found or unable to perform auto-click.');
-      }
+      // Open the first link in the same tab
+      currentWindow = window.open(links[0], '_self');
+      statusDiv.innerHTML = 'Website opened successfully! Use the buttons below to control scrolling.';
     });
 
     // Start Auto-Scroll
@@ -134,23 +114,25 @@
         return;
       }
 
-      let scrollPosition = 0;
+      let scrollDirection = 1; // 1 for down, -1 for up
       scrollInterval = setInterval(() => {
-        scrollPosition += 100;
-        currentWindow.scrollTo(0, scrollPosition);
-
-        if (scrollPosition >= currentWindow.document.body.scrollHeight) {
-          clearInterval(scrollInterval);
-          alert('Auto-scroll completed!');
+        if (window.scrollY >= document.body.scrollHeight - window.innerHeight) {
+          scrollDirection = -1; // Reverse direction when reaching bottom
+        } else if (window.scrollY <= 0) {
+          scrollDirection = 1; // Reverse direction when reaching top
         }
+
+        window.scrollBy(0, scrollDirection * 50); // Scroll by 50px
       }, 100);
+
+      alert('Auto-scroll started!');
     });
 
-    // Stop Automation
-    document.getElementById('stopAutomation').addEventListener('click', function () {
+    // Stop Auto-Scroll
+    document.getElementById('stopScroll').addEventListener('click', function () {
       if (scrollInterval) {
         clearInterval(scrollInterval);
-        alert('Automation stopped!');
+        alert('Auto-scroll stopped!');
       }
     });
   </script>
